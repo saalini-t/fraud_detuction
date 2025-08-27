@@ -200,6 +200,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post('/api/system/generate-sample-data', requireAuth, async (req, res) => {
+    try {
+      // Generate 10 sample transactions
+      const sampleCount = 10;
+      const networks = ['ethereum', 'bitcoin', 'polygon', 'bsc'];
+      
+      for (let i = 0; i < sampleCount; i++) {
+        const txData = {
+          hash: `0x${Math.random().toString(16).slice(2)}${Math.random().toString(16).slice(2)}`,
+          blockNumber: Math.floor(Math.random() * 1000000) + 18000000,
+          fromAddress: `0x${Math.random().toString(16).slice(2, 42)}`,
+          toAddress: `0x${Math.random().toString(16).slice(2, 42)}`,
+          amount: (Math.random() * 1000).toFixed(6),
+          gasPrice: (Math.random() * 100 + 20).toFixed(0),
+          gasUsed: Math.floor(Math.random() * 200000) + 21000,
+          network: networks[Math.floor(Math.random() * networks.length)],
+          status: 'confirmed' as const
+        };
+        
+        await storage.createTransaction(txData);
+      }
+
+      // Log the sample data generation
+      await storage.createAuditLog({
+        userId: req.session.userId || '',
+        username: req.session.username || '',
+        action: 'create',
+        resource: 'system',
+        details: { action: 'generate_sample_data', count: sampleCount },
+        ipAddress: req.ip || req.connection.remoteAddress,
+        userAgent: req.headers['user-agent'] || ''
+      });
+
+      res.json({ count: sampleCount });
+    } catch (error) {
+      console.error('Generate sample data error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
   // Agent routes
   app.get('/api/agents', requireAuth, async (req, res) => {
     try {
@@ -264,6 +304,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(transactions);
     } catch (error) {
       console.error('Get transactions error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  app.post('/api/transactions', requireAuth, async (req, res) => {
+    try {
+      const transactionData = createTransactionSchema.parse(req.body);
+      const transaction = await storage.createTransaction(transactionData);
+      
+      // Log the creation
+      await storage.createAuditLog({
+        userId: req.session.userId || '',
+        username: req.session.username || '',
+        action: 'create',
+        resource: 'transaction',
+        resourceId: transaction._id?.toString() || '',
+        details: transactionData,
+        ipAddress: req.ip || req.connection.remoteAddress,
+        userAgent: req.headers['user-agent'] || ''
+      });
+
+      res.json(transaction);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Invalid transaction data', details: error.errors });
+      }
+      console.error('Create transaction error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  app.post('/api/transactions/bulk', requireAuth, async (req, res) => {
+    try {
+      const { data } = req.body;
+      const transactions = JSON.parse(data);
+      
+      if (!Array.isArray(transactions)) {
+        return res.status(400).json({ error: 'Data must be an array of transactions' });
+      }
+
+      let created = 0;
+      for (const txData of transactions) {
+        try {
+          const validTxData = createTransactionSchema.parse(txData);
+          await storage.createTransaction(validTxData);
+          created++;
+        } catch (error) {
+          console.error('Error creating transaction:', error);
+        }
+      }
+
+      // Log the bulk creation
+      await storage.createAuditLog({
+        userId: req.session.userId || '',
+        username: req.session.username || '',
+        action: 'create',
+        resource: 'transaction',
+        details: { bulkCount: created, totalAttempted: transactions.length },
+        ipAddress: req.ip || req.connection.remoteAddress,
+        userAgent: req.headers['user-agent'] || ''
+      });
+
+      res.json({ created, totalAttempted: transactions.length });
+    } catch (error) {
+      console.error('Bulk create transactions error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   });

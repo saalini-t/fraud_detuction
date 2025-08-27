@@ -14,6 +14,7 @@ import Alerts from "./pages/alerts";
 import Reports from "./pages/reports";
 import Wallets from "./pages/wallets";
 import AuditLogs from "./pages/audit-logs";
+import DataInput from "./pages/data-input";
 import NotFound from "./pages/not-found";
 import Login from "./pages/login";
 
@@ -57,6 +58,7 @@ function AuthenticatedApp() {
             <Route path="/reports" component={Reports} />
             <Route path="/wallets" component={Wallets} />
             <Route path="/audit-logs" component={AuditLogs} />
+            <Route path="/data-input" component={DataInput} />
             <Route component={NotFound} />
           </Switch>
         </main>

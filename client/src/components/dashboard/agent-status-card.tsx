@@ -31,17 +31,17 @@ export default function AgentStatusCard({ agent }: AgentStatusCardProps) {
     }
   };
 
-  const getProgressColor = (status: string) => {
-    switch (status) {
-      case 'processing':
-        return 'bg-primary';
-      case 'error':
-        return 'bg-destructive';
-      case 'inactive':
-        return 'bg-muted';
-      default:
-        return 'bg-success';
-    }
+  const getProgressColor = (progress: number, status: string) => {
+    if (status === 'error') return 'bg-destructive';
+    if (status === 'inactive') return 'bg-muted';
+    
+    // Sequential color changes based on progress
+    if (progress <= 20) return 'bg-blue-500';        // Start - Blue
+    if (progress <= 40) return 'bg-yellow-500';      // Early - Yellow  
+    if (progress <= 60) return 'bg-orange-500';      // Mid - Orange
+    if (progress <= 80) return 'bg-purple-500';      // Late - Purple
+    if (progress < 100) return 'bg-pink-500';        // Almost done - Pink
+    return 'bg-green-500';                           // Complete - Green
   };
 
   const getStatusText = (status: string) => {
@@ -92,9 +92,9 @@ export default function AgentStatusCard({ agent }: AgentStatusCardProps) {
           <div className="w-full bg-muted rounded-full h-2" data-testid={`agent-progress-container-${agent.type}`}>
             <div 
               className={cn(
-                "h-2 rounded-full transition-all duration-300",
+                "h-2 rounded-full transition-all duration-500",
                 agent.status === 'processing' ? 'progress-bar' : '',
-                getProgressColor(agent.status)
+                getProgressColor(agent.progress, agent.status)
               )}
               style={{ width: `${agent.progress}%` }}
               data-testid={`agent-progress-bar-${agent.type}`}

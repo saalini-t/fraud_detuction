@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'wouter';
 import { cn } from '@/lib/utils';
-import { Shield, BarChart3, Bot, ArrowRightLeft, AlertTriangle, FileText, Wallet, History } from 'lucide-react';
+import { Shield, BarChart3, Bot, ArrowRightLeft, AlertTriangle, FileText, Wallet, History, Plus } from 'lucide-react';
 import { useSystemStats } from '@/hooks/use-websocket';
 
 const navigation = [
@@ -11,6 +11,7 @@ const navigation = [
   { name: 'Reports', href: '/reports', icon: FileText },
   { name: 'Wallets', href: '/wallets', icon: Wallet },
   { name: 'Audit Logs', href: '/audit-logs', icon: History },
+  { name: 'Data Input', href: '/data-input', icon: Plus },
 ];
 
 export default function Sidebar() {
