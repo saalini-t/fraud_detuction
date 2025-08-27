@@ -1,0 +1,60 @@
+# Crypto Transaction Fraud Detection Multi-Agent System
+
+## Overview
+
+This project is a crypto transaction fraud detection system built as a multi-agent architecture. The system monitors blockchain transactions in real-time, analyzes behavior patterns using machine learning, scores risk levels, generates alerts for suspicious activities, and provides comprehensive reporting and audit trails. It features a modern web interface for system monitoring, agent management, and fraud analysis visualization.
+
+## User Preferences
+
+Preferred communication style: Simple, everyday language.
+
+## System Architecture
+
+### Frontend Architecture
+The client uses React with TypeScript and a modern component-based architecture. The UI is built with shadcn/ui components for consistent styling and uses Tailwind CSS for responsive design. React Query handles data fetching and caching, while Wouter provides lightweight routing. The frontend includes real-time WebSocket connections for live updates and toast notifications for user feedback.
+
+### Backend Architecture
+The server is built with Express.js and TypeScript, following a modular structure with separate route handling, database operations, and agent management. The system uses a multi-agent pattern where specialized agents handle different aspects of fraud detection:
+
+- *Transaction Monitor Agent*: Polls blockchain data every 5 seconds for new transactions
+- *Behavior Analysis Agent*: Analyzes transaction patterns every 10 seconds for anomalies
+- *Risk Scoring Agent*: Calculates fraud probability scores every 8 seconds using ML algorithms
+- *Alerting Agent*: Processes high-risk transactions every 6 seconds and generates alerts
+- *Reporting Agent*: Generates compliance reports and system analytics every 30 seconds
+
+### Data Storage
+The system uses PostgreSQL as the primary database with Drizzle ORM for type-safe database operations. Key data models include users, agents, transactions, alerts, audit logs, and wallet profiles. The schema supports indexing on critical fields like transaction hashes, wallet addresses, and risk scores for optimal query performance.
+
+### Real-time Communication
+WebSocket connections enable real-time updates between the server and client, broadcasting agent status changes, new alerts, and transaction updates. The system maintains connection resilience with automatic reconnection logic.
+
+### Authentication and Session Management
+The system uses session-based authentication with PostgreSQL session storage via connect-pg-simple, providing secure user management and audit trails.
+
+## External Dependencies
+
+### Database
+- *Neon Database*: Serverless PostgreSQL database for production deployment
+- *Drizzle ORM*: Type-safe database operations and migrations
+- *connect-pg-simple*: PostgreSQL session store for Express sessions
+
+### UI Framework
+- *shadcn/ui*: Pre-built React components with Radix UI primitives
+- *Tailwind CSS*: Utility-first CSS framework for styling
+- *Lucide React*: Icon library for consistent iconography
+
+### State Management
+- *TanStack React Query*: Server state management and caching
+- *React Hook Form*: Form validation and state management
+
+### Real-time Features
+- *WebSocket (ws)*: Real-time bidirectional communication
+- *Vite*: Development server with HMR and build tooling
+
+### Blockchain Integration
+The system includes mock blockchain services that simulate transaction monitoring. In production, this would integrate with actual blockchain RPC endpoints for Ethereum and other networks.
+
+### Development Tools
+- *TypeScript*: Type safety across the entire stack
+- *ESBuild*: Fast JavaScript bundling for production builds
+- *Replit plugins*: Development environment integration and error handling
